@@ -3,13 +3,107 @@ import {
   DomainConnectSettings, 
   DomainConnectOptions, 
   DomainConnectResult,
-  Template
+  Template,
+  DnsProviderInfo
 } from './types';
+import { promisify } from 'util';
+import * as dns from 'dns';
 
 /**
  * Domain Connect client for discovering settings and applying templates
  */
 export class DomainConnectClient {
+  private dnsResolve = promisify(dns.resolve);
+  private dnsResolveNs = promisify(dns.resolveNs);
+  
+  // Map of common DNS providers based on nameserver patterns
+  private dnsProviders: Record<string, string[]> = {
+    'Cloudflare': ['cloudflare.com', 'cloudflare-dns.com'],
+    'GoDaddy': ['domaincontrol.com', 'godaddy.com'],
+    'Namecheap': ['registrar-servers.com', 'namecheap.com'],
+    'Google Domains': ['googledomains.com', 'domains.google.com'],
+    'Amazon Route 53': ['awsdns'],
+    'DigitalOcean': ['digitalocean.com'],
+    'Bluehost': ['bluehost.com'],
+    'HostGator': ['hostgator.com'],
+    'DreamHost': ['dreamhost.com'],
+    'Name.com': ['name.com'],
+    'OVH': ['ovh.net'],
+    '1&1 IONOS': ['1and1.com', 'ionos.com'],
+  };
+  
+  /**
+   * Discovers the DNS provider for a domain and checks if Domain Connect is supported
+   * @param domain The domain to check
+   * @returns Information about the DNS provider and Domain Connect support
+   */
+  public async getDnsProviderInfo(domain: string): Promise<DnsProviderInfo> {
+    try {
+      // Get nameservers for the domain using our safe method
+      const nameservers = await this.safeResolveDns(domain);
+      
+      // Determine the DNS provider
+      const provider = this.identifyDnsProvider(nameservers);
+      
+      // Check Domain Connect support
+      const dcSettings = await this.discoverSettings(domain);
+      
+      return {
+        domain,
+        nameservers,
+        provider: provider || 'Unknown',
+        supportsDomainConnect: !!dcSettings,
+        domainConnectSettings: dcSettings
+      };
+    } catch (error) {
+      // If any part of the process fails, return basic error info
+      return {
+        domain,
+        nameservers: [],
+        provider: 'Unknown',
+        supportsDomainConnect: false,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+  
+  /**
+   * Identifies the DNS provider based on nameservers
+   * @param nameservers Array of nameserver hostnames
+   * @returns The identified provider name or null if unknown
+   */
+  private identifyDnsProvider(nameservers: string[]): string | null {
+    if (!nameservers || nameservers.length === 0) {
+      return null;
+    }
+    
+    // Convert nameservers to lowercase for comparison
+    const lowerNameservers = nameservers.map(ns => ns.toLowerCase());
+    
+    // Check against known providers
+    for (const [provider, domains] of Object.entries(this.dnsProviders)) {
+      if (domains.some(domain => 
+        lowerNameservers.some(ns => ns.includes(domain.toLowerCase()))
+      )) {
+        return provider;
+      }
+    }
+    
+    // If we can't identify the provider, return the nameserver domain
+    try {
+      // Extract the base domain from the first nameserver
+      const nsParts = lowerNameservers[0].split('.');
+      if (nsParts.length >= 2) {
+        const baseDomain = `${nsParts[nsParts.length - 2]}.${nsParts[nsParts.length - 1]}`;
+        return baseDomain;
+      }
+    } catch (e) {
+      // Ignore parsing errors
+    }
+    
+    return null;
+  }
+  
   /**
    * Discover Domain Connect settings for a domain
    * @param domain Domain name to discover settings for
@@ -327,5 +421,23 @@ export class DomainConnectClient {
     
     // Add the query string to the URL
     return `${apiUrl}?${queryParams.toString()}`;
+  }
+
+  // Safely resolve DNS records with error handling
+  private async safeResolveDns(domain: string): Promise<string[]> {
+    try {
+      // First try the specific nameserver resolution method
+      return await this.dnsResolveNs(domain);
+    } catch (error) {
+      console.warn(`Initial nameserver resolution failed for ${domain}:`, error);
+      
+      // Fall back to the generic resolve method with NS type
+      try {
+        return await this.dnsResolve(domain, 'NS');
+      } catch (secondError) {
+        console.error(`All DNS resolution methods failed for ${domain}:`, secondError);
+        return [];
+      }
+    }
   }
 } 

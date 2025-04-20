@@ -128,11 +128,46 @@ if (!validation.valid) {
 const records = generateRecords(template, params, 'example.com', 'blog');
 ```
 
+## DNS Provider Detection
+
+The library can detect which DNS provider is used for a domain and whether that provider supports Domain Connect:
+
+```typescript
+import { DomainConnectClient } from 'hallocasa-domain-connect';
+
+const client = new DomainConnectClient();
+const providerInfo = await client.getDnsProviderInfo('example.com');
+
+console.log(`DNS Provider: ${providerInfo.provider}`);
+console.log(`Supports Domain Connect: ${providerInfo.supportsDomainConnect}`);
+console.log(`Nameservers: ${providerInfo.nameservers.join(', ')}`);
+
+if (providerInfo.supportsDomainConnect) {
+  console.log('Domain Connect Settings:', providerInfo.domainConnectSettings);
+}
+```
+
+The `getDnsProviderInfo` method returns information about the DNS provider:
+
+```typescript
+{
+  domain: string;           // The domain that was checked
+  nameservers: string[];    // List of nameservers for the domain
+  provider: string;         // Identified DNS provider name
+  supportsDomainConnect: boolean;  // Whether the provider supports Domain Connect
+  domainConnectSettings?: DomainConnectSettings | null; // Domain Connect settings if supported
+  error?: string;           // Error message if the check failed
+}
+```
+
+The library identifies many common DNS providers including Cloudflare, GoDaddy, Namecheap, Google Domains, AWS Route 53, and more.
+
 ## API Reference
 
 ### DomainConnectClient
 
 * `discoverSettings(domain: string): Promise<DomainConnectSettings | null>`
+* `getDnsProviderInfo(domain: string): Promise<DnsProviderInfo>`
 * `getTemplate(settings: DomainConnectSettings, providerId: string, serviceId: string): Promise<Template | null>`
 * `applyTemplateSynchronous(settings: DomainConnectSettings, options: DomainConnectOptions): Promise<DomainConnectResult>`
 * `applyTemplateAsynchronous(settings: DomainConnectSettings, options: DomainConnectOptions): Promise<DomainConnectResult>`
@@ -153,4 +188,4 @@ const records = generateRecords(template, params, 'example.com', 'blog');
 
 ## License
 
-MIT 
+MIT

@@ -117,4 +117,39 @@ export interface DomainConnectResult {
   error?: string;
   /** URL for checking the status of an asynchronous operation */
   asyncStatusUrl?: string;
+}
+
+/**
+ * DNS Provider information with Domain Connect support status
+ */
+export interface DnsProviderInfo {
+  /**
+   * The domain that was checked
+   */
+  domain: string;
+  
+  /**
+   * List of nameservers for the domain
+   */
+  nameservers: string[];
+  
+  /**
+   * Identified DNS provider name
+   */
+  provider: string;
+  
+  /**
+   * Whether the provider supports Domain Connect
+   */
+  supportsDomainConnect: boolean;
+  
+  /**
+   * Domain Connect settings if supported
+   */
+  domainConnectSettings?: DomainConnectSettings | null;
+  
+  /**
+   * Error message if the check failed
+   */
+  error?: string;
 } 
