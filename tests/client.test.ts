@@ -9,14 +9,6 @@ import { promises as dns } from 'dns';
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
-// Mock dns promises
-// jest.mock('dns/promises', () => ({
-//   resolveNs: jest.fn()
-// }));
-
-// Cast dns to a mocked type
-// const mockedDns = dns as jest.Mocked<typeof dns>;
-
 describe('DomainConnectClient', () => {
   let client: DomainConnectClient;
   let mockSettings: DomainConnectSettings;
@@ -52,20 +44,28 @@ describe('DomainConnectClient', () => {
       
       mockedAxios.get.mockResolvedValueOnce(mockResponse);
       
-      const result = await client.getDnsProviderInfo('example.com');
+      const result = await client.getDnsProvider('example.com');
       
-      expect(result.domain).toBe('example.com');
-      expect(result.nameservers).toEqual(['ns1.domaincontrol.com', 'ns2.domaincontrol.com']);
-      expect(result.provider).toBe('GoDaddy');
+      expect(result.name).toBe('GoDaddy');
+      expect(result.domains).toEqual(['example.com']);
       expect(result.loginUrl).toBe('https://sso.godaddy.com');
+      expect(result.iconUrl).toBe('https://www.godaddy.com/favicon.ico');
     });
 
-    test('correctly identifies aws DNS provider for martinmueller.dev', async () => {
-      const result = await client.getDnsProviderInfo('martinmueller.dev');
+    test('correctly identifies aws DNS provider for martinmueller.dev & hallo6.martinmueller.dev', async () => {
+      let result = await client.getDnsProvider('martinmueller.dev');
       
-      expect(result.domain).toBe('martinmueller.dev');
-      expect(result.provider).toBe('Amazon Route 53');
+      expect(result.name).toBe('Amazon Route 53');
+      expect(result.domains).toEqual(['martinmueller.dev', 'hallo6.martinmueller.dev']);
       expect(result.loginUrl).toBe('https://console.aws.amazon.com/route53/');
+      expect(result.iconUrl).toBe('https://aws.amazon.com/favicon.ico');
+
+       result = await client.getDnsProvider('hallo6.martinmueller.dev');
+      
+      expect(result.name).toBe('Amazon Route 53');
+      expect(result.domains).toEqual(['martinmueller.dev', 'hallo6.martinmueller.dev']);
+      expect(result.loginUrl).toBe('https://console.aws.amazon.com/route53/');
+      expect(result.iconUrl).toBe('https://aws.amazon.com/favicon.ico');
     });
     
     test('correctly identifies a DNS provider without Domain Connect support', async () => {
@@ -78,12 +78,12 @@ describe('DomainConnectClient', () => {
       mockedAxios.get.mockRejectedValueOnce(new Error('DNS lookup failed'));
       mockedAxios.get.mockRejectedValueOnce(new Error('API request failed'));
       
-      const result = await client.getDnsProviderInfo('example.com');
+      const result = await client.getDnsProvider('example.com');
       
-      expect(result.domain).toBe('example.com');
-      expect(result.nameservers).toEqual(['ns1.cloudflare.com', 'ns2.cloudflare.com']);
-      expect(result.provider).toBe('Cloudflare');
+      expect(result.name).toBe('Cloudflare');
+      expect(result.domains).toEqual(['example.com']);
       expect(result.loginUrl).toBe('https://dash.cloudflare.com/login');
+      expect(result.iconUrl).toBe('https://www.cloudflare.com/favicon.ico');
     });
     
     test('handles unknown DNS providers', async () => {
@@ -96,12 +96,12 @@ describe('DomainConnectClient', () => {
       mockedAxios.get.mockRejectedValueOnce(new Error('DNS lookup failed'));
       mockedAxios.get.mockRejectedValueOnce(new Error('API request failed'));
       
-      const result = await client.getDnsProviderInfo('example.com');
+      const result = await client.getDnsProvider('example.com');
       
-      expect(result.domain).toBe('example.com');
-      expect(result.nameservers).toEqual(['ns1.unknownprovider.com', 'ns2.unknownprovider.com']);
-      expect(result.provider).toBe('unknownprovider.com');
+      expect(result.name).toBe('unknownprovider.com');
+      expect(result.domains).toEqual(['example.com']);
       expect(result.loginUrl).toBeNull();
+      expect(result.iconUrl).toBeNull();
     });
     
     test('handles DNS resolution errors', async () => {
@@ -110,13 +110,12 @@ describe('DomainConnectClient', () => {
       // Mock DNS nameserver lookup error
       mockedDns.resolveNs.mockRejectedValueOnce(new Error('DNS resolution failed'));
       
-      const result = await client.getDnsProviderInfo('example.com');
+      const result = await client.getDnsProvider('example.com');
       
-      expect(result.domain).toBe('example.com');
-      expect(result.nameservers).toEqual([]);
-      expect(result.provider).toBe('Unknown');
+      expect(result.name).toBe('Unknown');
+      expect(result.domains).toEqual(['example.com']);
       expect(result.loginUrl).toBeNull();
-      expect(result.error).toBe('DNS resolution failed');
+      expect(result.iconUrl).toBeNull();
     });
   });
   
@@ -129,6 +128,18 @@ describe('DomainConnectClient', () => {
     
     test('returns null for unknown providers', () => {
       expect(client.getProviderLoginUrl('UnknownProvider')).toBeNull();
+    });
+  });
+  
+  describe('getProviderIconUrl', () => {
+    test('returns correct icon URL for known providers', () => {
+      expect(client.getProviderIconUrl('GoDaddy')).toBe('https://www.godaddy.com/favicon.ico');
+      expect(client.getProviderIconUrl('Namecheap')).toBe('https://www.namecheap.com/favicon.ico');
+      expect(client.getProviderIconUrl('Cloudflare')).toBe('https://www.cloudflare.com/favicon.ico');
+    });
+    
+    test('returns null for unknown providers', () => {
+      expect(client.getProviderIconUrl('UnknownProvider')).toBeNull();
     });
   });
   

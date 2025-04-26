@@ -119,6 +119,14 @@ export interface DomainConnectResult {
   asyncStatusUrl?: string;
 }
 
+export interface DnsProvider {
+  name: string;
+  domains: string[];
+  loginUrl: string;
+  iconUrl: string;
+  cnameInstructions: string;
+}
+
 /**
  * DNS Provider information with Domain Connect support status
  */
@@ -142,6 +150,16 @@ export interface DnsProviderInfo {
    * Login URL for the DNS provider's control panel
    */
   loginUrl: string | null;
+  
+  /**
+   * Icon URL for the DNS provider
+   */
+  iconUrl: string | null;
+  
+  /**
+   * CNAME record setup instructions for the DNS provider
+   */
+  cnameInstructions?: string | null;
   
   /**
    * Error message if the check failed
