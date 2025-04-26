@@ -10,9 +10,3 @@ jest.mock('util', () => {
     promisify: jest.fn(fn => fn)
   };
 });
-
-// Mock DNS functions
-jest.mock('dns', () => ({
-  resolve: jest.fn(),
-  resolveNs: jest.fn()
-})); 

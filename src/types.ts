@@ -139,14 +139,9 @@ export interface DnsProviderInfo {
   provider: string;
   
   /**
-   * Whether the provider supports Domain Connect
+   * Login URL for the DNS provider's control panel
    */
-  supportsDomainConnect: boolean;
-  
-  /**
-   * Domain Connect settings if supported
-   */
-  domainConnectSettings?: DomainConnectSettings | null;
+  loginUrl: string | null;
   
   /**
    * Error message if the check failed

@@ -8,6 +8,12 @@ A TypeScript implementation of the [Domain Connect](https://www.domainconnect.or
 npm install domain-connect-ts
 ```
 
+```bash
+YOUR_DOMAIN=martinmueller.dev
+curl -L -i https://${YOUR_DOMAIN}/.well-well-known/domainconnect/v2/${YOUR_DOMAIN}/sync/add
+
+```
+
 ## Usage
 
 ### Basic Example

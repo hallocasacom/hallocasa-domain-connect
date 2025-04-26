@@ -1,5 +1,5 @@
 {
-  "name": "hallocasa-domain-connect-ts",
+  "name": "hallocasa-domain-connect",
   "version": "1.0.0",
   "description": "TypeScript implementation of the Domain Connect protocol",
   "main": "dist/index.js",

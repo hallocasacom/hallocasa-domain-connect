@@ -6,31 +6,76 @@ import {
   Template,
   DnsProviderInfo
 } from './types';
-import { promisify } from 'util';
-import * as dns from 'dns';
+import { promises as dns } from 'dns';
 
 /**
  * Domain Connect client for discovering settings and applying templates
  */
 export class DomainConnectClient {
-  private dnsResolve = promisify(dns.resolve);
-  private dnsResolveNs = promisify(dns.resolveNs);
   
   // Map of common DNS providers based on nameserver patterns
-  private dnsProviders: Record<string, string[]> = {
-    'Cloudflare': ['cloudflare.com', 'cloudflare-dns.com'],
-    'GoDaddy': ['domaincontrol.com', 'godaddy.com'],
-    'Namecheap': ['registrar-servers.com', 'namecheap.com'],
-    'Google Domains': ['googledomains.com', 'domains.google.com'],
-    'Amazon Route 53': ['awsdns'],
-    'DigitalOcean': ['digitalocean.com'],
-    'Bluehost': ['bluehost.com'],
-    'HostGator': ['hostgator.com'],
-    'DreamHost': ['dreamhost.com'],
-    'Name.com': ['name.com'],
-    'OVH': ['ovh.net'],
-    '1&1 IONOS': ['1and1.com', 'ionos.com'],
+  private dnsProviders: Record<string, { domains: string[], loginUrl: string }> = {
+    'Cloudflare': { 
+      domains: ['cloudflare.com', 'cloudflare-dns.com'],
+      loginUrl: 'https://dash.cloudflare.com/login'
+    },
+    'GoDaddy': { 
+      domains: ['domaincontrol.com', 'godaddy.com'],
+      loginUrl: 'https://sso.godaddy.com'
+    },
+    'Namecheap': { 
+      domains: ['registrar-servers.com', 'namecheap.com'],
+      loginUrl: 'https://www.namecheap.com/myaccount/login/'
+    },
+    'Google Domains': { 
+      domains: ['googledomains.com', 'domains.google.com'],
+      loginUrl: 'https://domains.google.com/registrar/login'
+    },
+    'Amazon Route 53': { 
+      domains: ['awsdns'],
+      loginUrl: 'https://console.aws.amazon.com/route53/'
+    },
+    'DigitalOcean': { 
+      domains: ['digitalocean.com'],
+      loginUrl: 'https://cloud.digitalocean.com/login'
+    },
+    'Bluehost': { 
+      domains: ['bluehost.com'],
+      loginUrl: 'https://my.bluehost.com/hosting/login'
+    },
+    'HostGator': { 
+      domains: ['hostgator.com'],
+      loginUrl: 'https://portal.hostgator.com/login'
+    },
+    'DreamHost': { 
+      domains: ['dreamhost.com'],
+      loginUrl: 'https://panel.dreamhost.com/login'
+    },
+    'Name.com': { 
+      domains: ['name.com'],
+      loginUrl: 'https://www.name.com/account/login'
+    },
+    'OVH': { 
+      domains: ['ovh.net'],
+      loginUrl: 'https://www.ovh.com/auth/'
+    },
+    '1&1 IONOS': { 
+      domains: ['1and1.com', 'ionos.com'],
+      loginUrl: 'https://login.ionos.com'
+    },
   };
+  
+  /**
+   * Gets the login URL for a DNS provider
+   * @param provider Name of the DNS provider
+   * @returns The login URL for the provider or null if not found
+   */
+  public getProviderLoginUrl(provider: string): string | null {
+    if (this.dnsProviders[provider]) {
+      return this.dnsProviders[provider].loginUrl;
+    }
+    return null;
+  }
   
   /**
    * Discovers the DNS provider for a domain and checks if Domain Connect is supported
@@ -40,20 +85,19 @@ export class DomainConnectClient {
   public async getDnsProviderInfo(domain: string): Promise<DnsProviderInfo> {
     try {
       // Get nameservers for the domain using our safe method
-      const nameservers = await this.safeResolveDns(domain);
+      const nameservers = await dns.resolveNs(domain);
       
       // Determine the DNS provider
       const provider = this.identifyDnsProvider(nameservers);
       
-      // Check Domain Connect support
-      const dcSettings = await this.discoverSettings(domain);
+      // Get the login URL
+      const loginUrl = provider ? this.getProviderLoginUrl(provider) : null;
       
       return {
         domain,
         nameservers,
         provider: provider || 'Unknown',
-        supportsDomainConnect: !!dcSettings,
-        domainConnectSettings: dcSettings
+        loginUrl
       };
     } catch (error) {
       // If any part of the process fails, return basic error info
@@ -61,7 +105,7 @@ export class DomainConnectClient {
         domain,
         nameservers: [],
         provider: 'Unknown',
-        supportsDomainConnect: false,
+        loginUrl: null,
         error: error instanceof Error ? error.message : 'Unknown error'
       };
     }
@@ -81,7 +125,7 @@ export class DomainConnectClient {
     const lowerNameservers = nameservers.map(ns => ns.toLowerCase());
     
     // Check against known providers
-    for (const [provider, domains] of Object.entries(this.dnsProviders)) {
+    for (const [provider, { domains }] of Object.entries(this.dnsProviders)) {
       if (domains.some(domain => 
         lowerNameservers.some(ns => ns.includes(domain.toLowerCase()))
       )) {
@@ -421,23 +465,5 @@ export class DomainConnectClient {
     
     // Add the query string to the URL
     return `${apiUrl}?${queryParams.toString()}`;
-  }
-
-  // Safely resolve DNS records with error handling
-  private async safeResolveDns(domain: string): Promise<string[]> {
-    try {
-      // First try the specific nameserver resolution method
-      return await this.dnsResolveNs(domain);
-    } catch (error) {
-      console.warn(`Initial nameserver resolution failed for ${domain}:`, error);
-      
-      // Fall back to the generic resolve method with NS type
-      try {
-        return await this.dnsResolve(domain, 'NS');
-      } catch (secondError) {
-        console.error(`All DNS resolution methods failed for ${domain}:`, secondError);
-        return [];
-      }
-    }
   }
 } 
