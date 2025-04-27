@@ -51,7 +51,7 @@ class DomainConnectClient {
             {
                 name: 'Domain.com',
                 domains: ['domain.com', 'domain-dns.com'],
-                loginUrl: 'https://www.domain.com/login',
+                loginUrl: 'https://www.domain.com/my-account/login',
                 iconUrl: 'https://www.domain.com/favicon.ico',
                 cnameInstructions: '1. Login to Domain.com\n2. Go to "My Domains"\n3. Find and click on your domain\n4. Click on "DNS & Nameservers"\n5. Scroll to the "DNS Records" section\n6. Click "Add Record"\n7. Select "CNAME" as the record type\n8. Enter the hostname in the "Host" field\n9. Enter the target domain in the "Points to" field\n10. Click "Save Changes"'
             },
