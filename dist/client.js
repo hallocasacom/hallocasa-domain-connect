@@ -14,32 +14,11 @@ class DomainConnectClient {
         // Map of common DNS providers based on nameserver patterns
         this.dnsProviders = [
             {
-                name: 'Cloudflare',
-                domains: ['cloudflare.com', 'cloudflare-dns.com'],
-                loginUrl: 'https://dash.cloudflare.com/login',
-                iconUrl: 'https://www.cloudflare.com/favicon.ico',
-                cnameInstructions: '1. Login to Cloudflare dashboard\n2. Select your domain\n3. Go to the DNS tab\n4. Click "Add record"\n5. Select "CNAME" from the type dropdown\n6. Enter the hostname in the "Name" field\n7. Enter the target domain in the "Target" field\n8. Click "Save"'
-            },
-            {
-                name: 'GoDaddy',
-                domains: ['domaincontrol.com', 'godaddy.com'],
-                loginUrl: 'https://sso.godaddy.com',
-                iconUrl: 'https://img6.wsimg.com/ux/favicon/favicon.ico',
-                cnameInstructions: '1. Login to GoDaddy\n2. Go to your Domain List\n3. Click on the domain you want to manage\n4. Click "DNS"\n5. Scroll to the "Records" section\n6. Click "Add" and select "CNAME"\n7. Enter the hostname in the "Host" field\n8. Enter the target domain in the "Points to" field\n9. Click "Save"'
-            },
-            {
-                name: 'Namecheap',
-                domains: ['registrar-servers.com', 'namecheap.com'],
-                loginUrl: 'https://www.namecheap.com/myaccount/login/',
-                iconUrl: 'https://www.namecheap.com/favicon.ico',
-                cnameInstructions: '1. Login to Namecheap\n2. Go to "Domain List"\n3. Click "Manage" next to your domain\n4. Select the "Advanced DNS" tab\n5. Under "Host Records", click "Add New Record"\n6. Select "CNAME Record" from the dropdown\n7. Enter the hostname in the "Host" field\n8. Enter the target domain in the "Value" field\n9. Set TTL as desired\n10. Click the checkmark to save'
-            },
-            {
-                name: 'Google Domains',
-                domains: ['googledomains.com', 'domains.google.com'],
-                loginUrl: 'https://domains.google.com/registrar/login',
-                iconUrl: 'https://www.google.com/favicon.ico',
-                cnameInstructions: '1. Login to Google Domains\n2. Select your domain\n3. Click "DNS" in the left menu\n4. Scroll to "Custom resource records"\n5. Enter the hostname in the first field\n6. Select "CNAME" from the dropdown\n7. Enter the target domain in the "Data" field\n8. Click "Add"'
+                name: '1&1 IONOS',
+                domains: ['1and1.com', 'ionos.com'],
+                loginUrl: 'https://login.ionos.com',
+                iconUrl: 'https://www.ionos.com/favicon.ico',
+                cnameInstructions: '1. Login to IONOS Control Panel\n2. Go to "Domains & SSL"\n3. Select your domain\n4. Click on "DNS"\n5. Click "Add Record"\n6. Select "CNAME" as the type\n7. Enter the hostname in the "Prefix" field\n8. Enter the target domain in the "Value" field\n9. Click "Save"'
             },
             {
                 name: 'Amazon Route 53',
@@ -49,13 +28,6 @@ class DomainConnectClient {
                 cnameInstructions: '1. Login to AWS Console\n2. Navigate to Route 53\n3. Click on "Hosted zones"\n4. Select your domain name\n5. Click "Create Record Set"\n6. Enter the hostname in the "Name" field\n7. Select "CNAME" as the "Type"\n8. Enter the target domain in the "Value" field\n9. Click "Create"'
             },
             {
-                name: 'DigitalOcean',
-                domains: ['digitalocean.com'],
-                loginUrl: 'https://cloud.digitalocean.com/login',
-                iconUrl: 'https://assets.digitalocean.com/favicon.ico',
-                cnameInstructions: '1. Login to DigitalOcean\n2. Navigate to "Networking"\n3. Click on "Domains"\n4. Select your domain\n5. Click "Add Record"\n6. Select "CNAME" from the dropdown\n7. Enter the hostname in the "Hostname" field\n8. Enter the target domain in the "Is an alias of" field\n9. Click "Create Record"'
-            },
-            {
                 name: 'Bluehost',
                 domains: ['bluehost.com'],
                 loginUrl: 'https://my.bluehost.com/hosting/login',
@@ -63,11 +35,25 @@ class DomainConnectClient {
                 cnameInstructions: '1. Login to Bluehost\n2. Go to "Domains" section\n3. Click on your domain name\n4. Click "DNS" or "Zone Editor"\n5. Click "Add Record"\n6. Select "CNAME" as the record type\n7. Enter the hostname in the "Host Record" field\n8. Enter the target domain in the "Points To" field\n9. Set TTL as desired\n10. Click "Add Record"'
             },
             {
-                name: 'HostGator',
-                domains: ['hostgator.com'],
-                loginUrl: 'https://portal.hostgator.com/login',
-                iconUrl: 'https://www.hostgator.com/favicon.ico',
-                cnameInstructions: '1. Login to HostGator\n2. Navigate to "Domains"\n3. Click on your domain\n4. Click "DNS Records"\n5. Scroll to "Add Record"\n6. Select "CNAME" from the dropdown\n7. Enter the hostname in the "Name" field\n8. Enter the target domain in the "Content" field\n9. Click "Add Record"'
+                name: 'Cloudflare',
+                domains: ['cloudflare.com', 'cloudflare-dns.com'],
+                loginUrl: 'https://dash.cloudflare.com/login',
+                iconUrl: 'https://www.cloudflare.com/favicon.ico',
+                cnameInstructions: '1. Login to Cloudflare dashboard\n2. Select your domain\n3. Go to the DNS tab\n4. Click "Add record"\n5. Select "CNAME" from the type dropdown\n6. Enter the hostname in the "Name" field\n7. Enter the target domain in the "Target" field\n8. Click "Save"'
+            },
+            {
+                name: 'DigitalOcean',
+                domains: ['digitalocean.com'],
+                loginUrl: 'https://cloud.digitalocean.com/login',
+                iconUrl: 'https://assets.digitalocean.com/favicon.ico',
+                cnameInstructions: '1. Login to DigitalOcean\n2. Navigate to "Networking"\n3. Click on "Domains"\n4. Select your domain\n5. Click "Add Record"\n6. Select "CNAME" from the dropdown\n7. Enter the hostname in the "Hostname" field\n8. Enter the target domain in the "Is an alias of" field\n9. Click "Create Record"'
+            },
+            {
+                name: 'Domain.com',
+                domains: ['domain.com', 'domain-dns.com'],
+                loginUrl: 'https://www.domain.com/login',
+                iconUrl: 'https://www.domain.com/favicon.ico',
+                cnameInstructions: '1. Login to Domain.com\n2. Go to "My Domains"\n3. Find and click on your domain\n4. Click on "DNS & Nameservers"\n5. Scroll to the "DNS Records" section\n6. Click "Add Record"\n7. Select "CNAME" as the record type\n8. Enter the hostname in the "Host" field\n9. Enter the target domain in the "Points to" field\n10. Click "Save Changes"'
             },
             {
                 name: 'DreamHost',
@@ -77,6 +63,27 @@ class DomainConnectClient {
                 cnameInstructions: '1. Login to DreamHost Panel\n2. Go to "Domains" > "Manage Domains"\n3. Click on your domain name\n4. Click "DNS" tab\n5. Scroll to "Add Record"\n6. Select "CNAME" record type\n7. Enter the hostname in the "Name" field\n8. Enter the target domain in the "Value" field\n9. Click "Add Record Now"'
             },
             {
+                name: 'GoDaddy',
+                domains: ['domaincontrol.com', 'godaddy.com'],
+                loginUrl: 'https://sso.godaddy.com',
+                iconUrl: 'https://img6.wsimg.com/ux/favicon/favicon.ico',
+                cnameInstructions: '1. Login to GoDaddy\n2. Go to your Domain List\n3. Click on the domain you want to manage\n4. Click "DNS"\n5. Scroll to the "Records" section\n6. Click "Add" and select "CNAME"\n7. Enter the hostname in the "Host" field\n8. Enter the target domain in the "Points to" field\n9. Click "Save"'
+            },
+            {
+                name: 'Google Domains',
+                domains: ['googledomains.com', 'domains.google.com'],
+                loginUrl: 'https://domains.google.com/registrar/login',
+                iconUrl: 'https://www.google.com/favicon.ico',
+                cnameInstructions: '1. Login to Google Domains\n2. Select your domain\n3. Click "DNS" in the left menu\n4. Scroll to "Custom resource records"\n5. Enter the hostname in the first field\n6. Select "CNAME" from the dropdown\n7. Enter the target domain in the "Data" field\n8. Click "Add"'
+            },
+            {
+                name: 'HostGator',
+                domains: ['hostgator.com'],
+                loginUrl: 'https://portal.hostgator.com/login',
+                iconUrl: 'https://www.hostgator.com/favicon.ico',
+                cnameInstructions: '1. Login to HostGator\n2. Navigate to "Domains"\n3. Click on your domain\n4. Click "DNS Records"\n5. Scroll to "Add Record"\n6. Select "CNAME" from the dropdown\n7. Enter the hostname in the "Name" field\n8. Enter the target domain in the "Content" field\n9. Click "Add Record"'
+            },
+            {
                 name: 'Name.com',
                 domains: ['name.com'],
                 loginUrl: 'https://www.name.com/account/login',
@@ -84,18 +91,18 @@ class DomainConnectClient {
                 cnameInstructions: '1. Login to Name.com\n2. Click on your domain in "My Domains"\n3. Click "Manage DNS Records"\n4. Click "Add Record"\n5. Select "CNAME" from the record type dropdown\n6. Enter the hostname in the "Host" field\n7. Enter the target domain in the "Answer" field\n8. Click "Add Record"'
             },
             {
+                name: 'Namecheap',
+                domains: ['registrar-servers.com', 'namecheap.com'],
+                loginUrl: 'https://www.namecheap.com/myaccount/login/',
+                iconUrl: 'https://www.namecheap.com/favicon.ico',
+                cnameInstructions: '1. Login to Namecheap\n2. Go to "Domain List"\n3. Click "Manage" next to your domain\n4. Select the "Advanced DNS" tab\n5. Under "Host Records", click "Add New Record"\n6. Select "CNAME Record" from the dropdown\n7. Enter the hostname in the "Host" field\n8. Enter the target domain in the "Value" field\n9. Set TTL as desired\n10. Click the checkmark to save'
+            },
+            {
                 name: 'OVH',
                 domains: ['ovh.net'],
                 loginUrl: 'https://www.ovh.com/auth/',
                 iconUrl: 'https://www.ovh.com/favicon.ico',
                 cnameInstructions: '1. Login to OVH Manager\n2. Navigate to "Domains"\n3. Select your domain\n4. Click on the "DNS Zone" tab\n5. Click "Add an entry"\n6. Select "CNAME" from the dropdown\n7. Enter the hostname in the "Sub-domain" field\n8. Enter the target domain in the "Target" field\n9. Click "Next" and then "Confirm"'
-            },
-            {
-                name: '1&1 IONOS',
-                domains: ['1and1.com', 'ionos.com'],
-                loginUrl: 'https://login.ionos.com',
-                iconUrl: 'https://www.ionos.com/favicon.ico',
-                cnameInstructions: '1. Login to IONOS Control Panel\n2. Go to "Domains & SSL"\n3. Select your domain\n4. Click on "DNS"\n5. Click "Add Record"\n6. Select "CNAME" as the type\n7. Enter the hostname in the "Prefix" field\n8. Enter the target domain in the "Value" field\n9. Click "Save"'
             },
         ];
     }
